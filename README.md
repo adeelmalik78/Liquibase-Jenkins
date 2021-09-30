@@ -8,6 +8,7 @@ Parameters needed to run this groovy script:
 - ENVIRONMENT (e.g., DEV, TEST or PROD)
 - CHANGELOG FILE (e.g., masterchangelog.xml)
 - CLASSPATH (e.g., postgresql-42.2.23.jar) 
+- BASEDIR (The path in repository where sqlcode resides. This is also where changelog and driver file exists)
 
 It expects that your repo consists of the following structure:
 
