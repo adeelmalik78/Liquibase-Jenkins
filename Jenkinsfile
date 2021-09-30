@@ -5,11 +5,14 @@
 pipeline {
 agent any
   environment {
-    PROJ="projectName"
-    GITURL="https://github.com/<username>"
-    ENVIRONMENT_STEP="${params.step}"
-    BRANCH="${params.pipeline}"
-    PATH="/path/to/liquibase:$PATH"
+    GITURL="${params.REPO_URL}"
+    PROJECT="${params.PROJECT}"
+    BRANCH="${params.BRANCH}"
+    ENVIRONMENT_STEP="${params.ENVIRONMENT}"
+    CHANGELOGFILE="${params.CHANGELOGFILE}"
+    CLASSPATH="${params.CLASSPATH}"
+    BASEDIR="{params.BASEDIR}"
+    PATH="/root/liquibase:$PATH"
   }
   stages {
 
@@ -17,9 +20,14 @@ agent any
 		steps {
 			sh '''
         { set +x; } 2>/dev/null
-        echo "Current project: "$PROJ
-        echo "Current scm branch: "$BRANCH
+        echo "Git repository: "${GITURL}
+        echo "Current project: "${PROJECT}
+        echo "Current branch: "${BRANCH}
         echo "Current environment: "$ENVIRONMENT_STEP
+        echo "Current changelog file: "${CHANGELOGFILE}
+        echo "Current classpath: "${CLASSPATH}
+        echo "Current base directory: "${BASEDIR}
+        echo "Current path: "${PATH}
 			'''
 		} // steps
 	} // stage 'precheck'
@@ -29,10 +37,8 @@ agent any
         // checkout Liquibase project from repo
         sh '''
           { set +x; } 2>/dev/null
-          cd /localPath/to/workspaceFolder
-          if [ -d "$PROJ" ]; then rm -Rf $PROJ; fi
-          git clone ${GITURL}/${PROJ}.git
-          cd ${PROJ}
+          git clone ${GITURL}
+          cd ${BASEDIR}
           git checkout $BRANCH
           git status
           '''
