@@ -38,7 +38,7 @@ agent any
         sh '''
           { set +x; } 2>/dev/null
           git clone ${GITURL}
-          cd ${BASEDIR}
+          cd ${PROJECT}
           git checkout $BRANCH
           git status
           '''
@@ -49,24 +49,14 @@ agent any
       steps {
         sh '''
           { set +x; } 2>/dev/null
-          cd /localPath/to/workspaceFolder/${PROJ}/${ENVIRONMENT_STEP}
+          export LIQUIBASE_ARGS="--defaultsFile={ENVIRONMENT}/liquibase.properties --changelogFile=${CHANGLOGFILE} --classpath=${CLASSPATH}"
+          cd ${PROJECT}/${BASEDIR}
           liquibase --version
-          echo "------------------------------------"
-          echo "----------liquibase status----------"
-          echo "------------------------------------"
-          liquibase --url=${URL} --password=${PASSWORD} --contexts=$ENVIRONMENT_STEP status
-          echo "---------------------------------------------"
-          echo "----------liquibase rollbackCount=2----------"
-          echo "---------------------------------------------"
+          liquibase $LIQUIBASE_ARGS status --verbose
           liquibase --url=${URL} --password=${PASSWORD} --contexts=$ENVIRONMENT_STEP rollbackCount 2
-          echo "---------------------------------------"
-          echo "----------liquibase updateSQL----------"
-          echo "---------------------------------------"
-          liquibase --url=${URL} --password=${PASSWORD} --contexts=$ENVIRONMENT_STEP updateSQL
-          echo "------------------------------------"
-          echo "----------liquibase update----------"
-          echo "------------------------------------"
-          liquibase --url=${URL} --password=${PASSWORD} --contexts=$ENVIRONMENT_STEP update
+          liquibase $LIQUIBASE_ARGS updateSQL
+          liquibase $LIQUIBASE_ARGS update
+          liquibase $LIQUIBASE_ARGS history
         '''
       } // steps
     }   // Environment stage
